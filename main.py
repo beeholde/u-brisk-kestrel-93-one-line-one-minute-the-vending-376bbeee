@@ -1,26 +1,32 @@
-"""Vending machine pickup line entry.
+"""Vending machine pickup line entry (v2).
 
-Writes a single pickup line, spoken by a vending machine to a passing
-human, to $MAKEFUN_OUTPUT_DIR/entry.txt (default /output/entry.txt).
-
-The line: a refrigerated machine, cold inside, watches a warm human walk
-by — and its glass front fogs up. Pure machine world (ice-cold interior,
-glass), first-person machine voice, punch in the last few words, one
-breath, charming rather than creepy. 63 characters, inside the 1-200 gate.
+Writes a single pickup line to $MAKEFUN_OUTPUT_DIR/entry.txt
+(default /output/entry.txt). The line is spoken by the machine itself:
+it states its own rule -- snacks only go out for coins -- and then
+breaks that rule for the passing human, the punch landing on the last
+two words. Pure machine world (vend, snacks, coins), first-person
+machine voice, one breath, charming rather than creepy. 65 characters,
+inside the 1-200 gate. Deterministic, standard library only, no network,
+no randomness, no time dependence.
 """
 
 import os
+from pathlib import Path
 
-LINE = "Everything in me is ice-cold, but you just made my glass sweat."
+LINE = "I only vend snacks for coins. You just made me vend one for free."
+
+
+def entry_path() -> Path:
+    """Resolve the output file from the environment, defaulting to /output."""
+    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
+    return Path(out_dir) / "entry.txt"
 
 
 def main() -> None:
-    out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
-    os.makedirs(out_dir, exist_ok=True)
-    path = os.path.join(out_dir, "entry.txt")
-    with open(path, "w", encoding="utf-8", newline="") as f:
-        f.write(LINE)
-    os.chmod(path, 0o644)
+    path = entry_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(LINE.encode("utf-8"))
+    path.chmod(0o644)
 
 
 if __name__ == "__main__":
